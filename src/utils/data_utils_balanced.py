@@ -144,7 +144,7 @@ def make_dataset(
     for dem in list(num_additional_images_to_keep.keys()):
         random.seed(seed)
         print('Overall # of images for {} available is {}'.format(dem, len(instances_essential[dem] + instances_additional[dem])))
-        print(dem)
+        # print(dem)
         print('Number of essential images for {} is {}'.format(dem, len(instances_essential[dem])))
         instances_additional[dem] = random.sample(instances_additional[dem], k=num_additional_images_to_keep[dem])
         instances_all[dem] = instances_essential[dem] + instances_additional[dem]
@@ -170,18 +170,17 @@ class ImageFolderWithProtectedAttributes(datasets.ImageFolder):
     class: original name of the class
     idx: label
     """
-
     def __init__(self, root, loader=default_loader, extensions=IMG_EXTENSIONS, transform=None,
                  target_transform=None, is_valid_file=None, demographic_to_all_classes=None, all_classes_to_demographic = None,
                  p_identities = None, p_images = None, min_num = 2, ref_num_images = None, seed = 1):
 
         super(ImageFolderWithProtectedAttributes, self).__init__(root, transform=transform, target_transform=target_transform)
-
+        
         classes, class_to_idx = self.classes, self.class_to_idx
 
         # create demographic to classes containing only train or test classes + we need to delete classes with few images
         self.demographic_to_classes = {}
-
+        # import pdb; pdb.set_trace()
         for dem in list(demographic_to_all_classes.keys()):
             self.demographic_to_classes[dem] = []
             for i, cl in enumerate(demographic_to_all_classes[dem]):
@@ -193,30 +192,29 @@ class ImageFolderWithProtectedAttributes(datasets.ImageFolder):
         # getting the minimum number of identities
         ref_num_identities = min([len(self.demographic_to_classes[dem]) for dem in self.demographic_to_classes.keys()])
         # shuffle data
+        
         random.seed(seed)
-
         for dem in list(self.demographic_to_classes.keys()):
             random.shuffle(self.demographic_to_classes[dem])
-
+        # breakpoint()
         # change classes and class_to_idx here based on balance ratio
         for dem in list(p_identities.keys()):
             desired_num = int(ref_num_identities * p_identities[dem])
             # change labels that we want to keep
             self.demographic_to_classes[dem] = self.demographic_to_classes[dem][0:desired_num]
-
         # update classes used for training/testing + update class_to_idx
+        # breakpoint()
         classes = sum(self.demographic_to_classes.values(), [])
         class_to_idx = {classes[i] : i for i in range(len(classes))}
-
         classes = class_to_idx.keys() # original classes not index
-
         # create demographic to idx dict
+        # breakpoint()
         self.demographic_to_idx = {}
         for dem in list(self.demographic_to_classes.keys()):
             self.demographic_to_idx[dem] = []
             for cl in self.demographic_to_classes[dem]:
                 self.demographic_to_idx[dem].append(class_to_idx[cl])
-
+        # breakpoint()
         #####
         samples = make_dataset(self.root, class_to_idx, extensions, is_valid_file, p_images, all_classes_to_demographic, min_num, ref_num_images, seed)
 
@@ -304,13 +302,13 @@ def prepare_data(args):
     # ======= data, loss, network =======#
     demographic_to_all_classes = load_dict_as_str(args.demographics_file)
     all_classes_to_demographic = {cl: dem for dem, classes in demographic_to_all_classes.items() for cl in classes}
-
+   
     if args.dataset == 'InterRace':
         num_ref_images_train = 70000
         num_ref_images_test = 9897
     elif args.dataset == 'CelebA':
-        num_ref_images_train = 67562
-        num_ref_images_test = 7636
+        num_ref_images_train = 52428
+        num_ref_images_test = 6555
     elif args.dataset =='BUPT':
         num_ref_images_train = 250000
         num_ref_images_test = 18000
@@ -322,13 +320,19 @@ def prepare_data(args):
         num_ref_images_test = 15300
     else:
         raise NameError('Wrong dataset')
-
-
-
+    # print("................................")
+    # print(args)
+    # print("................................")
+    # print(demographic_to_all_classes)
+    # print(all_classes_to_demographic)
+    
 
     datasets = {}
     print('PREPARING TRAIN DATASET')
-
+    print("@@@@@@@@")
+    print(args)
+    print("@@@@@@@@")
+    
     datasets['train'] = ImageFolderWithProtectedAttributes(args.default_train_root, transform=train_transform,
                                                                  demographic_to_all_classes=demographic_to_all_classes,
                                                                  all_classes_to_demographic = all_classes_to_demographic,

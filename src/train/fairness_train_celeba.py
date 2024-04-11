@@ -74,7 +74,7 @@ if __name__ == '__main__':
         workspace=args.comet_workspace,
     )
     experiment.add_tag(args.backbone)
-
+    
     dataloaders, num_class, demographic_to_labels_train,demographic_to_labels_val, demographic_to_labels_test = prepare_data(
         args)
     args.num_class = num_class
