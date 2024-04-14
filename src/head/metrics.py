@@ -158,8 +158,9 @@ class CosFace(nn.Module):
 
     def forward(self, input, label):
         # --------------------------- cos(theta) & phi(theta) ---------------------------
-        if self.device_id == None:
+        if self.device_id == None or len(self.device_id) == 0:
             cosine = F.linear(F.normalize(input), F.normalize(self.weight))
+            
         else:
             x = input
             sub_weights = torch.chunk(self.weight, len(self.device_id), dim=0)
@@ -173,7 +174,7 @@ class CosFace(nn.Module):
         phi = cosine - self.m
         # --------------------------- convert label to one-hot ---------------------------
         one_hot = torch.zeros(cosine.size())
-        if self.device_id != None:
+        if self.device_id != None and len(self.device_id) > 0:
             one_hot = one_hot.cuda(self.device_id[0])
         # one_hot = one_hot.cuda() if cosine.is_cuda else one_hot
         one_hot.scatter_(1, label.view(-1, 1).long(), 1)

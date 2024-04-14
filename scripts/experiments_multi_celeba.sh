@@ -4,12 +4,12 @@ echo "Current working directory: $(pwd)"
 cd /Users/sanjanapadavala/Desktop/4-2/FR-NAS/src
 
 # Activate virtual environment if needed
-. /fr/bin/activate
+# . /fr/bin/activate
 
 # Add the project root directory to the Python path
 export PYTHONPATH="$PWD:$PYTHONPATH"
 
 for f in celeba_configs/configs_multi/**/*.yaml; do
   # Run the Python script with the correct path
-  python src/train/fairness_train_celeba.py --config_path "$f"
+  python train/fairness_train_celeba.py --config_path "$f"
 done
