@@ -153,7 +153,7 @@ if __name__ == '__main__':
     #model = nn.DataParallel(model)
     model = model.to(device)
     #print(model_ema)
-    args.epochs = 100
+    args.epochs = 20
     print('Start training')
     with experiment.train():
         while epoch <= args.epochs:

@@ -137,8 +137,8 @@ if __name__ == '__main__':
     model = model.to(device)
     model.load_state_dict(checkpoint['model_state_dict'])  
     #print(model_ema)
-    args.epochs = 100
-    epoch = 100
+    args.epochs = 20
+    epoch = 20
     print('Start training')
     backbone.eval()  # set to testing mode
     head.eval()
